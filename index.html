@@ -1919,7 +1919,7 @@ P.push({
       acc('🚫 Fakta, Opini, dan Hoaks (P3)', '<p><b>Fakta</b> dapat dibuktikan · <b>Opini</b> pendapat subjektif · <b>Hoaks</b> informasi palsu.</p><p>Membedakan hoaks: periksa sumber, telusuri bukti, waspadai judul provokatif, gunakan situs cek fakta. Dampak: panik, nama baik rusak, konflik, kepercayaan berkurang.</p>') +
       acc('🚧 Miskonsepsi yang Sering Muncul', tbl(['❌ Anggapan keliru','✅ Yang benar'],[['Hasil paling atas pasti benar','Tetap cek judul, snippet, sumber, tanggal'],['Viral = benar','Jumlah pembagi bukan bukti'],['Opini = hoaks','Opini pendapat; hoaks informasi palsu'],['Data = informasi','Data mentah; informasi sudah diolah']])),
     latihan: act('p5team'),
-    kuis: box('yellow','📝 Latihan Ulangan Harian Bab 3', '<p>Latihan berikut <b>mirip dengan bentuk ulangan</b>: 20 soal pilihan ganda dan 5 soal isian singkat (jawaban 1–2 kata). Setiap soal bernilai 4 poin, total 100. Kerjakan sendiri dulu, baru lihat pembahasannya!</p>') + act('p5sim') + act('p5simEs') + act('p5bs') + act('p5akm'),
+    kuis: box('yellow','📝 Latihan Ulangan Harian Bab 3', '<p>Latihan berikut <b>mirip dengan bentuk ulangan</b>: <b>A.</b> 15 soal pilihan ganda, <b>B.</b> 5 soal isian singkat (jawaban 1–2 kata), dan <b>C.</b> 5 soal benar atau salah. Setiap soal bernilai 4 poin, total 100. Kerjakan sendiri dulu, baru lihat pembahasannya!</p>') + act('p5sim') + act('p5simEs') + act('p5simBs') + act('p5bs') + act('p5akm'),
     pendalaman:
       act('p5fill') + act('p5line') + act('p5essay') +
       rv('🧩 HOTS 1: Bagaimana menggunakan langkah berpikir kritis untuk menilai apakah sebuah informasi termasuk hoaks?', '<p>Berhenti sejenak, jangan percaya judul → periksa sumber (siapa, lembaga apa) → cek bukti (data, foto asli, dokumen) → bandingkan dengan sumber tepercaya lain → nilai apakah masuk akal atau penuh manipulasi → gunakan situs cek fakta → putuskan.</p>') +
@@ -1932,34 +1932,36 @@ P.push({
   },
   acts:{
     p5spin:{type:'spin', title:'Putar Nomor Absen', max:32},
-    p5sim:{type:'quiz', title:'Latihan Ulangan: 20 Soal Pilihan Ganda', qs:[
+    p5sim:{type:'quiz', title:'Latihan Ulangan A: 15 Soal Pilihan Ganda', qs:[
       {q:'Suhu “30°C” yang dicatat tanpa keterangan apa pun termasuk ….', o:['data','informasi','konten','aplikasi'], a:0, e:'Angka tanpa konteks = fakta mentah = data.'},
       {q:'Hasil pengolahan data yang membantu kita mengambil keputusan disebut ….', o:['informasi','konten','data mentah','domain'], a:0, e:'Informasi = data yang diolah dan bermakna.'},
       {q:'Contoh konten digital adalah ….', o:['daftar angka survei','catatan suhu mentah','infografis hasil survei di media sosial','angka absen siswa'], a:2, e:'Konten = informasi yang disajikan.'},
-      {q:'Informasi memiliki nilai aktual, artinya informasi ….', o:['berguna setelah diolah','langsung dapat dipakai untuk mengambil keputusan','tidak bermakna','belum disusun'], a:1, e:'Nilai aktual = langsung dapat dipakai.'},
       {q:'Kegiatan membuang data ganda dan data yang salah sebelum dianalisis termasuk tahap ….', o:['pengumpulan','penyajian','pembersihan dan pengelompokan','interpretasi'], a:2, e:'Pembersihan &amp; pengelompokan data.'},
       {q:'Aplikasi seperti Pocket atau Notion digunakan untuk ….', o:['menyimpan artikel untuk dibaca nanti','mengedit video','menghitung rumus','membuat kata sandi'], a:0, e:'Aplikasi penyimpan konten.'},
       {q:'Agar foto kerja kelompok bisa dibuka dari HP dan laptop, sebaiknya disimpan dengan ….', o:['screenshot','bookmark','cloud storage','menghapus file'], a:2, e:'Lintas perangkat → cloud.'},
-      {q:'Aplikasi untuk menyajikan informasi dalam bentuk slide adalah ….', o:['Google Sheets','Google Slides','Tableau','Pocket'], a:1, e:'Google Slides = presentasi.'},
       {q:'Judul hasil pencarian yang sesuai dengan kata kunci menandakan halaman tersebut ….', o:['pasti hoaks','tidak perlu dibaca','sudah kedaluwarsa','besar kemungkinan relevan'], a:3, e:'Judul = petunjuk awal relevansi.'},
       {q:'Hasil pencarian yang muncul paling atas ….', o:['pasti paling benar','belum tentu paling relevan sehingga tetap perlu dicek','selalu berupa iklan','tidak boleh dibuka'], a:1, e:'Tetap cek judul, snippet, sumber, tanggal.'},
       {q:'Kata kunci yang lebih spesifik akan menghasilkan ….', o:['hasil lebih terarah','hasil acak','lebih banyak iklan','hasil tanpa judul'], a:0, e:'Spesifik → terarah.'},
       {q:'Proses menentukan urutan hasil pencarian berdasarkan relevansi dan kualitas disebut ….', o:['crawling','indexing','ranking','download'], a:2, e:'Ranking = pemeringkatan.'},
-      {q:'Mesin pencari yang dikembangkan oleh Microsoft adalah ….', o:['Google','Bing','Yahoo','DuckDuckGo'], a:1, e:'Bing buatan Microsoft.'},
-      {q:'Google Scholar termasuk mesin pencari ….', o:['umum','khusus video','khusus peta','khusus karya ilmiah'], a:3, e:'Mesin pencari khusus bidang tertentu.'},
-      {q:'Kualifikasi penulis diperiksa untuk mengetahui ….', o:['latar belakang dan keahlian penulis','warna halaman','jumlah gambar','ukuran file'], a:0, e:'Keahlian penulis menentukan kredibilitas.'},
       {q:'Informasi yang bertentangan dengan banyak sumber tepercaya sebaiknya ….', o:['langsung dipercaya','disikapi dengan hati-hati dan dicek kembali','segera dibagikan','dijadikan bahan berita'], a:1, e:'Tidak konsisten → perlu dicek.'},
       {q:'Profesi media pers yang menangkap visual berupa foto dan video liputan adalah ….', o:['editor','ahli SEO','ahli keamanan informasi','fotografer dan videografer'], a:3, e:'Fotografer &amp; videografer.'},
       {q:'“Upacara bendera dilaksanakan setiap hari Senin pukul 07.00.” Pernyataan ini termasuk ….', o:['fakta','opini','hoaks','rumor'], a:0, e:'Dapat dibuktikan dengan jadwal resmi.'},
       {q:'Kata yang biasanya menandakan sebuah opini adalah ….', o:['menurut data BPS','pada tanggal 17 Agustus','menurut saya','berjumlah 32 siswa'], a:2, e:'“Menurut saya” = pendapat pribadi.'},
       {q:'Prinsip “saring sebelum sharing” berarti ….', o:['membagikan semua informasi secepatnya','hanya membagikan berita viral','tidak pernah membaca berita','memeriksa sumber dan bukti sebelum membagikan'], a:3, e:'Periksa dulu, baru bagikan.'}
     ]},
-    p5simEs:{type:'fill', title:'Latihan Ulangan: 5 Soal Isian Singkat (1–2 kata)', ins:'Ketik jawaban singkat 1–2 kata, lalu tekan Periksa.', qs:[
-      {q:'Proses mesin pencari menentukan urutan hasil pencarian disebut ….', a:['ranking','pemeringkatan']},
-      {q:'Menyimpan file dari internet ke perangkat agar bisa dibuka tanpa internet disebut ….', a:['download','unduh','mengunduh']},
+    p5simEs:{type:'fill', title:'Latihan Ulangan B: 5 Soal Isian Singkat (1–2 kata)', ins:'Ketik jawaban singkat 1–2 kata, lalu tekan Periksa.', qs:[
+      {q:'Proses mesin pencari menyimpan dan mengatur data halaman web agar cepat ditemukan disebut ….', a:['indexing','pengindeksan','indeks']},
+      {q:'Fitur browser untuk menyimpan alamat halaman web favorit agar mudah dibuka lagi disebut ….', a:['bookmark','penanda','markah']},
       {q:'Ahli yang membuat konten berita mudah ditemukan di mesin pencari disebut ahli ….', a:['seo','search engine optimization']},
       {q:'Data yang sudah diolah, disusun, dan bermakna disebut ….', a:['informasi']},
       {q:'Tingkat dapat dipercayanya suatu sumber informasi disebut ….', a:['kredibilitas','kredibel']}
+    ]},
+    p5simBs:{type:'quiz', title:'Latihan Ulangan C: 5 Soal Benar atau Salah', ins:'Ketuk Benar atau Salah untuk setiap pernyataan.', qs:[
+      {q:'Data yang sudah diolah dan diberi makna disebut informasi.', o:['Benar','Salah'], a:0, e:'Data → diolah → informasi.'},
+      {q:'File yang disimpan di cloud hanya bisa dibuka dari satu perangkat saja.', o:['Benar','Salah'], a:1, e:'File di cloud bisa dibuka dari berbagai perangkat yang terhubung internet.'},
+      {q:'Fakta adalah pernyataan yang dapat dibuktikan kebenarannya.', o:['Benar','Salah'], a:0, e:'Fakta dapat dibuktikan dengan data atau bukti.'},
+      {q:'Pesan yang meminta “sebarkan!” tanpa sumber yang jelas patut dicurigai sebagai hoaks.', o:['Benar','Salah'], a:0, e:'Ajakan menyebarkan tanpa sumber adalah ciri hoaks.'},
+      {q:'Bookmark berfungsi untuk menghapus riwayat penjelajahan internet.', o:['Benar','Salah'], a:1, e:'Bookmark menyimpan tautan halaman, bukan menghapus riwayat.'}
     ]},
     p5team:{type:'team', title:'Adu Tim: 20 Soal Pilihan Ganda LKS Bab 3', sec:30, qs:LKS3},
     p5bs:{type:'quiz', title:'LKS Bagian E: Benar atau Salah', qs:[
