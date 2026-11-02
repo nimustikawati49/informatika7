@@ -514,6 +514,7 @@ function two(lt, lh, rt, rh){ return '<div class="g2">' + box('orange', lt, lh) 
 var BOOKS = [];
 var SEND_URL = 'https://script.google.com/macros/s/AKfycbw_RUaSPKjJkSaVYWlKdCkPn-ISuedMh5Ud1MnF9v5op48Rchsh39B2FYNcQ8YUa5ua/exec';
 var ULANGAN_URL = 'https://script.google.com/macros/s/AKfycbwADwUnBq6SsdWihZGZv1cuShSdRKIArP_iZM_8lRlr0t-VdnMw4O0w28VciKqqiQau/exec';
+var LAT_SAS = 'LAT-SAS';   // tombol Latihan SAS di beranda (kode bank LAT-SAS-7)
 function addBook(o, fn){ o.P = fn(); o.P.forEach(function(p){ p.key = o.id + '-' + p.key; }); BOOKS.push(o); }
 addBook({id:'bab1', pdf:['Pertemuan1_Berpikir_Komputasional','Pertemuan2_Literasi_dan_Tahapan_BK','Pertemuan3_Algoritma_dan_Dasar_Pemrograman','Pertemuan4_Rangkuman_dan_Latihan_Bab1'], label:'Bab 1', short:'Bab1', title:'Berpikir Komputasional', sub:'Konsep BK, tahapan BK, algoritma &amp; dasar pemrograman', e:'🧠', art:'🧩🔁🤖🧠', grad:'linear-gradient(150deg,#0f2a4a 0%,#0e7490 65%,#14b8a6 100%)', dark:'#0f2a4a'}, function(){
 var STEPS = [
@@ -3025,6 +3026,7 @@ function aksesCepat(){
   var sub = (location.pathname.match(/\/(ganjil|genap)\/[^\/]*$/) || [])[1], pre = sub ? '../' : '', q = sub ? '?dari=' + sub : '';
   var t = [ubin(pre + 'cek-tugas.html' + q, WARNA.cek, '✅', 'Cek Tugas', 'Siapa yang sudah mengumpulkan')];
   if (typeof ULANGAN_URL !== 'undefined' && ULANGAN_URL) t.push(ubin(pre + 'ulangan.html' + q, WARNA.ulangan, '📝', 'Ulangan Online', 'Ulangan Harian Bab 1–3'));
+  if (typeof ULANGAN_URL !== 'undefined' && ULANGAN_URL && typeof LAT_SAS !== 'undefined' && LAT_SAS) t.push(ubin(pre + 'ulangan.html?pilih=' + LAT_SAS + (sub ? '&dari=' + sub : ''), WARNA.latihan, '🏋️', 'Latihan SAS', 'Bab 1–3 · tanpa token · boleh diulang'));
   return '<div class="tbls">' + t.join('') + '</div>';
 }
 /* Kartu ulangan di halaman buku (hanya saat online & alamat ulangan terpasang):
