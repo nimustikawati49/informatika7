@@ -3839,7 +3839,7 @@ function kirimNilai(p, paksa){
   }
   var d = {sheet: b.send, nama: S.prof.nama, kelas: S.prof.kelas, absen: S.prof.absen, bab: b.label, pertemuan: p.no, judul: p.title.replace(/<[^>]+>/g, ''), nilai: sc.pct, nilaiPertama: pScoreFirst(p), nilaiLkpd: lk.n, jawabanLkpd: lk.t, perangkat: S.dev, semester: semOf(b)};
   if (st) st.textContent = '⏳ Mengirim…';
-  postNilai(d).then(function(j){ if (st) st.innerHTML = '✅ Terkirim ' + new Date().toLocaleString('id-ID') + ' (kiriman ke-' + j.jumlah + ')'; beep(true); toast('✅ Nilai terkirim ke guru'); }).catch(function(){
+  postNilai(d).then(function(j){ if (st) st.innerHTML = '✅ Nilai ' + sc.pct + '/100 terkirim ke guru · ' + new Date().toLocaleString('id-ID') + (j.jumlah ? ' (kiriman ke-' + j.jumlah + ')' : ''); beep(true); toast('✅ Nilai terkirim ke guru'); }).catch(function(){
     S.outbox = S.outbox.filter(function(x){ return !(x.sheet === d.sheet && x.pertemuan === d.pertemuan); }); S.outbox.push(d); save();
     if (st) st.innerHTML = '⚠️ Belum terkirim (internet bermasalah). Nilai disimpan dan akan dikirim otomatis saat online.';
     toast('⚠️ Belum terkirim, akan dicoba lagi otomatis');
