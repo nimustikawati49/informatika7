@@ -500,7 +500,15 @@ button.qopt:disabled{cursor:default;opacity:1;color:inherit}
 .kirim-warn{background:#fff7ed;border:1.5px solid #fdba74;border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:.95rem}
 .kirim-warn.bad{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
 .kirim-warn ul{margin:6px 0 0;padding-left:20px}.kirim-warn li{margin:5px 0}
-</style>
+
+/* Cara mengerjakan per jenis soal (shell.js actHow) + debugging */
+.act-how{margin:8px 0 2px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:6px 12px;font-size:.88rem;color:#334155}
+.act-how summary{cursor:pointer;font-weight:800;color:#0f2a4a}
+.act-how div{margin-top:4px;line-height:1.45}
+.bugline{position:relative}
+.bugline .bug-tag{display:inline-block;margin-left:8px;font-size:.75rem;font-weight:800;border-radius:12px;padding:1px 8px;background:#fff;vertical-align:middle}
+.tile.fix{border-color:#f59e0b!important;background:#fef3c7!important;color:#92400e}
+.tile.ok .bug-tag{color:#15803d}.tile.bad .bug-tag{color:#b91c1c}.tile.fix .bug-tag{color:#92400e}</style>
 </head>
 <body>
 <div id="app"></div>
@@ -3565,6 +3573,8 @@ function staticAct(a){
       h = a.opts.map(function(o){ return '☐ ' + o.e + ' ' + o.t; }).join(' &nbsp; '); break;
     case 'maze':
       h = '<p>Permainan robot dikerjakan pada versi interaktif (laptop/HP/IFP).</p>'; break;
+    case 'sheet':
+      h = typeof sheetStatic === 'function' ? sheetStatic(a) : ''; break;
     default: return '';
   }
   return '<div class="pact"><div class="pact-h">🎮 ' + (T[a.type] || 'Aktivitas') + (a.title ? ': ' + a.title : '') + '</div>' + (a.ins ? '<div class="ins">👉 ' + a.ins + '</div>' : '') + h + '</div>';
@@ -3631,20 +3641,66 @@ var RP_TYPES = {order:1, match:1, cat:1, quiz:1, fill:1, tablefill:1, bug:1, lin
 var rpNow = false, rpRand = Math.random, rpT = null;
 function rpRng(seed){ var t = seed >>> 0; return function(){ t = (t + 0x6D2B79F5) >>> 0; var r = Math.imul(t ^ t >>> 15, 1 | t); r ^= r + Math.imul(r ^ r >>> 7, 61 | r); return ((r ^ r >>> 14) >>> 0) / 4294967296; }; }
 function rpSeed(){ return Math.floor(rpRand() * 4294967296); }
-function rpNodes(el){ return [].filter.call(el.querySelectorAll('*'), function(x){ return !(window.SVGElement && x instanceof SVGElement) && !x.closest('.rp-x'); }); }
+function rpNodes(el){ return [].filter.call(el.querySelectorAll('*'), function(x){ return !(window.SVGElement && x instanceof SVGElement) && !x.closest('.rp-x, .rp-skip'); }); }
 function rpSig(x){ return x.tagName + [].filter.call(x.attributes, function(t){ return /^data-/.test(t.name); }).map(function(t){ return '|' + t.name + '=' + t.value; }).join(''); }
 function rpSave(){ clearTimeout(rpT); rpT = setTimeout(save, 300); }
 function rpScored(a){ return a && !a.noScore && maxOf(a) > 0; }
 function mountAct(el, a, id, pk){
-  if (!RP_TYPES[a.type]){ E[a.type](el, a, id, pk); rpBadge(el, a, id, pk); return; }
+  if (!RP_TYPES[a.type]){ E[a.type](el, a, id, pk); actHow(el, a, id, pk); rpBadge(el, a, id, pk); return; }
   S.rp[pk] = S.rp[pk] || {};
   var rec = S.rp[pk][id] = S.rp[pk][id] || {sd: rpSeed(), lg: []};
   function render(){ el._rng = rpRng(rec.sd); var o = Math.random; Math.random = el._rng; try { E[a.type](el, a, id, pk); } finally { Math.random = o; } }
   render();
   if (rec.lg.length && !rpPlay(el, rec)){ rec.sd = rpSeed(); rec.lg = []; render(); rpSave(); }   // tampilan berubah (soal diganti guru) → mulai bersih
+  actHow(el, a, id, pk);
   rpListen(el, id, pk);
   rpBadge(el, a, id, pk);
 }
+/* Petunjuk "Cara mengerjakan" per jenis soal (di bawah judul aktivitas; .rp-skip = tidak ikut indeks rekaman) */
+var HOWTO = {
+  quiz: 'Ketuk <b>satu</b> pilihan jawaban. Jawaban langsung diperiksa: hijau = benar, merah = pilihanmu yang salah. Baca pembahasannya, lalu tekan <b>Soal berikutnya →</b>.',
+  order: 'Ketuk kartu di bagian <b>Pilihan</b> sesuai urutan yang benar (yang pertama diketuk = nomor 1). Salah urutan? Ketuk kartu di <b>Urutan jawabanmu</b> untuk mengembalikannya. Tombol <b>Periksa</b> muncul setelah semua kartu dipindahkan.',
+  match: 'Ketuk kartu di <b>kiri</b>, lalu ketuk pasangannya di <b>kanan</b> (warnanya akan sama). Ingin mengganti? Ketuk lagi kartu kiri itu. Tombol <b>Periksa</b> muncul setelah semua kartu berpasangan.',
+  line: 'Tarik garis dari titik ● kiri ke titik ● kanan, atau ketuk kotak kiri lalu ketuk kotak kanan. Ketuk kotak kiri dua kali untuk menghapus garis. Tombol <b>Periksa</b> muncul setelah semua tersambung.',
+  cat: 'Ketuk <b>satu kartu</b> (kartu menyala), lalu ketuk <b>kotak kelompok</b> tujuannya. Salah tempat? Ketuk kartu di dalam kotak untuk mengembalikannya. Tombol <b>Periksa</b> muncul setelah semua kartu ditempatkan.',
+  fill: 'Ketik jawaban singkat di setiap kotak (perhatikan 💡 petunjuknya), lalu tekan <b>Periksa</b>. Jawaban yang sudah diketik tersimpan otomatis.',
+  tablefill: 'Ketik jawaban di setiap kotak kosong pada tabel, lalu tekan <b>Periksa</b>.',
+  essay: 'Tulis jawaban 2–4 kalimat dengan bahasamu sendiri dan gunakan <b>kata kunci</b> yang tersedia, lalu tekan <b>Periksa Jawaban</b>.',
+  bug: 'Baca tujuan program, periksa baris demi baris, lalu ketuk <b>SATU</b> baris yang salah. Jawaban langsung diperiksa dan tidak bisa diganti: ✓ hijau = tepat, ✗ merah = pilihanmu, 🐞 kuning = baris yang sebenarnya salah. Ingin mencoba lagi? Tekan <b>↻ Ulangi</b> setelah semua program dijawab.',
+  memory: 'Ketuk dua kartu untuk membukanya. Jika keduanya berpasangan, kartu tetap terbuka; jika tidak, kartu tertutup lagi. Temukan semua pasangan.',
+  sheet: 'Ketuk <b>sel kuning</b>, ketik rumus diawali <b>=</b> pada baris <b>fx</b>, lalu tekan <b>Enter</b>/✔. Hasil rumus langsung muncul di sel. Nilai hanya dihitung jika sel diisi <b>rumus</b> (bukan angka yang diketik langsung). Setelah semua sel kuning terisi, tekan <b>Periksa</b>.'
+};
+function actHow(el, a, id, pk){
+  var h = $('.act-h', el), t = HOWTO[a.type];
+  if (!h || !t || $('.act-how', el)) return;
+  h.insertAdjacentHTML('afterend', '<details class="act-how rp-skip"' + ((S.res[pk] || {})[id] ? '' : ' open') + '><summary>❓ Cara mengerjakan</summary><div>' + t + '</div></details>');
+}
+/* Debugging: baris pilihan siswa dan baris yang sebenarnya salah dibedakan (dulu keduanya merah → terlihat seperti dua jawaban) */
+E.bug = function(el, a, id, pk){
+  var u = shell(el, a, 'Debugging · temukan baris yang salah', '🐞');
+  function start(){
+    var answered = 0, s = 0;
+    u.foot.innerHTML = '<div class="muted" style="font-size:.85rem">Terjawab 0 dari ' + a.items.length + ' program</div>';
+    u.body.innerHTML = a.items.map(function(it, i){ return '<div class="card" data-i="' + i + '"><p><b>Program ' + (i + 1) + '.</b> ' + it.g + '</p><p class="muted" style="font-size:.85rem;margin:-4px 0 6px">👇 Ketuk satu baris yang salah:</p>' + it.lines.map(function(l, k){ return '<button class="tile bugline" data-k="' + k + '">' + l + '</button>'; }).join('') + '<div class="qfb"></div></div>'; }).join('');
+    $$('.card[data-i]', u.body).forEach(function(cd){
+      var it = a.items[+cd.dataset.i];
+      $$('.bugline', cd).forEach(function(b){ b.onclick = function(){
+        var k = +b.dataset.k, ok = k === it.w; if (ok) s++; answered++;
+        $$('.bugline', cd).forEach(function(x, j){
+          x.onclick = null; x.disabled = true;
+          if (j === k && ok){ x.classList.add('ok'); x.insertAdjacentHTML('beforeend', '<span class="bug-tag">✓ tepat</span>'); }
+          else if (j === k){ x.classList.add('bad'); x.insertAdjacentHTML('beforeend', '<span class="bug-tag">✗ pilihanmu</span>'); }
+          else if (j === it.w){ x.classList.add('fix'); x.insertAdjacentHTML('beforeend', '<span class="bug-tag">🐞 baris yang salah</span>'); }
+        });
+        beep(ok);
+        $('.qfb', cd).innerHTML = '<div class="fb ' + (ok ? 'ok' : 'bad') + '"><b>' + (ok ? '✓ Tepat, bug ditemukan!' : '✗ Pilihanmu kurang tepat. Baris yang salah ditandai 🐞 kuning.') + '</b> ' + it.e + '</div>';
+        if (answered === a.items.length){ award(pk, id, s, a.items.length); resultBox(u.foot, s, a.items.length, start); }
+        else u.foot.innerHTML = '<div class="muted" style="font-size:.85rem">Terjawab ' + answered + ' dari ' + a.items.length + ' program · lanjutkan ke program berikutnya 👇</div>';
+      }; });
+    });
+  }
+  start();
+};
 function rpPlay(el, rec){
   var ok = true, keep = {beep: beep, confetti: confetti, toast: toast, award: award}, o = Math.random;
   beep = confetti = toast = award = function(){};
@@ -3700,9 +3756,10 @@ function rpBadge(el, a, id, pk){
   var h = $('.act-h', el); if (!h || !rpScored(a)) return;
   var old = $('.rp-x', h); if (old) old.remove();
   var r = (S.res[pk] || {})[id], g = (S.rp[pk] || {})[id], b = document.createElement('span'), pct = r && r.m ? Math.round(r.s / r.m * 100) : 0;
-  var kls = r ? (pct >= 80 ? 'good' : pct >= 65 ? 'mid' : 'low') : (g && g.lg.length ? 'prog' : 'todo');
+  var prog = (g && g.lg.length) || (el._rpProg && el._rpProg());   // _rpProg: aktivitas yang menyimpan isiannya sendiri (mis. Lembar Kerja Excel)
+  var kkm = typeof MIN_KIRIM === 'number' ? MIN_KIRIM : 65, kls = r ? (pct >= 80 ? 'good' : pct >= kkm ? 'mid' : 'low') : (prog ? 'prog' : 'todo');
   b.className = 'rp-x ' + kls;
-  b.textContent = r ? '✓ Sudah dikerjakan · skor ' + r.s + '/' + r.m + (pct < 65 ? ' · ayo ulangi' : '') : g && g.lg.length ? '✏️ Belum selesai · lanjutkan' : '○ Belum dikerjakan';
+  b.textContent = r ? '✓ Sudah dikerjakan · skor ' + r.s + '/' + r.m + (pct < kkm ? ' · ayo ulangi' : '') : prog ? '✏️ Belum selesai · lanjutkan' : '○ Belum dikerjakan';
   h.appendChild(b);
   el.classList.remove('rp-good', 'rp-mid', 'rp-low'); if (r) el.classList.add('rp-' + kls);
 }
@@ -3717,7 +3774,7 @@ function rpSteps(p){
     var ids = []; String(p.c[STEPS[i].k] || '').replace(/data-act="([^"]+)"/g, function(m, id){ if (ids.indexOf(id) < 0) ids.push(id); });
     var c = rpCount(p, ids); if (!c.n) return;
     var e = document.createElement('em');
-    e.className = 'rp-st ' + (c.d < c.n ? (c.d ? 'prog' : 'todo') : c.pct >= 80 ? 'good' : c.pct >= 65 ? 'mid' : 'low');
+    e.className = 'rp-st ' + (c.d < c.n ? (c.d ? 'prog' : 'todo') : c.pct >= 80 ? 'good' : c.pct >= (typeof MIN_KIRIM === 'number' ? MIN_KIRIM : 65) ? 'mid' : 'low');
     e.textContent = c.d < c.n ? c.d + '/' + c.n : '✓ ' + c.pct;
     e.title = c.d < c.n ? c.d + ' dari ' + c.n + ' aktivitas sudah dikerjakan' : 'Semua aktivitas selesai · skor ' + c.pct;
     x.appendChild(e);
